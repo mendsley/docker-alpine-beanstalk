@@ -1,4 +1,4 @@
-FROM alpine
+FROM alpine:3.4
 MAINTAINER Matthew Endsley <mendsley@gmail.com>
 
 COPY alpine.patch /root/alpine.patch
@@ -10,7 +10,7 @@ RUN buildDeps='gcc curl musl-dev make tar' \
 	&& set -x \
 	&& addgroup beanstalk \
 	&& adduser -H -D -s /bin/false -G beanstalk beanstalk \
-	&& apk add --update $buildDeps \
+	&& apk add --no-cache $buildDeps \
 	&& curl -sSL "$BEANSTALK_DOWNLOAD_URL" -o /tmp/beanstalk.tar.gz \
 	&& mkdir -p /root/beanstalk \
 	&& tar -xzf /tmp/beanstalk.tar.gz -C /root/beanstalk --strip-components=1 \
@@ -19,9 +19,7 @@ RUN buildDeps='gcc curl musl-dev make tar' \
 	&& patch -p0 < /root/alpine.patch \
 	&& make \
 	&& cd \
-	&& mkdir -p /opt/beanstalk \
-	&& cp /root/beanstalk/beanstalkd /opt/beanstalk \
+	&& cp /root/beanstalk/beanstalkd /usr/local/bin/ \
 	&& rm -rf /root/alpine.patch /root/beanstalk \
 	&& apk del $buildDeps \
-	&& rm -rf  /var/cache/apk/* \
 	;
